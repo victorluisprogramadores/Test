@@ -45,8 +45,10 @@ public class Consulta extends AppCompatActivity {
     protected void onActivityResult(final int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         IntentResult resultadoScan = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        String scanContent = resultadoScan.getContents().toString();
-        resultado.setText(scanContent);
+        if(resultadoScan != null) {
+            String scanContent = resultadoScan.getContents().toString();
+            resultado.setText(scanContent);
+        }
 
     }
 

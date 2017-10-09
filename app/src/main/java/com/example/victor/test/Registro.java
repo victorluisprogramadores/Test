@@ -27,8 +27,8 @@ public class Registro extends AppCompatActivity {
         precio = (EditText) findViewById(R.id.et_precio_producto);
         stock = (EditText) findViewById(R.id.et_stock_producto);
         codigo = (TextView) findViewById(R.id.tvCodigo);
-        registrar = (Button) findViewById(R.id.btRegistrar);
-        obtener = (Button) findViewById(R.id.btObtener);
+        registrar = (Button) findViewById(R.id.bt_registrar);
+        obtener = (Button) findViewById(R.id.bt_obtener);
         obtener.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,7 +70,7 @@ public class Registro extends AppCompatActivity {
         codigoR = codigoL.getText().toString();
 
         AsyncHttpClient client = new AsyncHttpClient();
-        String url ="http://srvpruebas2016.esy.es/android/registro.php";
+        String url ="";
         RequestParams params = new RequestParams();
         params.put("",descripcion);
         params.put("Nombre",nombre);

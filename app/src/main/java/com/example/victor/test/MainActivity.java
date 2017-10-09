@@ -14,12 +14,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        registro = (Button) findViewById(R.id.btRegistro);
         consulta = (Button) findViewById(R.id.btConsulta);
         consulta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent consulta = new Intent(getApplicationContext(), Consulta.class);
                 startActivity(consulta);
+            }
+        });
+
+        registro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent registro = new Intent(getApplicationContext(), Registro.class);
+                startActivity(registro);
             }
         });
     }
