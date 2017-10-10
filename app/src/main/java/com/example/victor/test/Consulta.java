@@ -20,7 +20,7 @@ public class Consulta extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consulta);
         //Inicializar variables
-        resultado = (TextView) findViewById(R.id.tvCodigo);
+        resultado = (TextView) findViewById(R.id.tv_codigo);
         btLeer = (Button) findViewById(R.id.btLeer);
         //Ejecutar lector
         btLeer.setOnClickListener(new View.OnClickListener() {

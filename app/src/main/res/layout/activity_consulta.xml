@@ -16,7 +16,7 @@
         tools:layout_editor_absoluteY="301dp" />
 
     <TextView
-        android:id="@+id/tvCodigo"
+        android:id="@+id/tv_codigo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

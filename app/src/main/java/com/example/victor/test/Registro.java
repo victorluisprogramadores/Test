@@ -1,5 +1,6 @@
 package com.example.victor.test;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,7 +12,13 @@ import android.widget.TextView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 public class Registro extends AppCompatActivity {
     Button obtener,registrar;
@@ -26,13 +33,19 @@ public class Registro extends AppCompatActivity {
         modelo = (EditText) findViewById(R.id.et_modelo_producto);
         precio = (EditText) findViewById(R.id.et_precio_producto);
         stock = (EditText) findViewById(R.id.et_stock_producto);
-        codigo = (TextView) findViewById(R.id.tvCodigo);
+        codigo = (TextView) findViewById(R.id.tv_codigo);
         registrar = (Button) findViewById(R.id.bt_registrar);
         obtener = (Button) findViewById(R.id.bt_obtener);
         obtener.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 leerCodigo();
+            }
+        });
+        registrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                registrarProducto(nombre,descripcion,modelo,stock,precio,codigo);
             }
         });
     }
@@ -52,12 +65,21 @@ public class Registro extends AppCompatActivity {
     protected void onActivityResult(final int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         IntentResult resultadoScan = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        String scanContent = resultadoScan.getContents().toString();
-        codigo.setText(scanContent);
+        String scanContent = resultadoScan.getContents();
+        if(resultadoScan != null) {
+            codigo.setText(scanContent);
 
+        }else{
+            codigo.setText("No se encontro codigo");
+
+        }
     }
 
     private void registrarProducto(EditText nombreL,EditText descripcionL,EditText modeloL,EditText stockL,EditText precioL,TextView codigoL){
+        final ProgressDialog progressDialog = new ProgressDialog(Registro.this);
+        progressDialog.setMessage("Registrando producto");
+        progressDialog.show();
+
         String nombre,descripcion,modelo,codigoR;
         int stock;
         Double precio;
@@ -70,17 +92,43 @@ public class Registro extends AppCompatActivity {
         codigoR = codigoL.getText().toString();
 
         AsyncHttpClient client = new AsyncHttpClient();
-        String url ="";
+        String url ="https://victorluisprogramadores.000webhostapp.com/registroProductos.php";
         RequestParams params = new RequestParams();
-        params.put("",descripcion);
-        params.put("Nombre",nombre);
-        params.put("Descripcion",descripcion);
-        params.put("Modelo",modelo);
-        params.put("Precio",precio);
-        params.put("Stock",stock);
+        params.put("codigo",codigoR);
+        params.put("nombre",nombre);
+        params.put("descripcion",descripcion);
+        params.put("modelo",modelo);
+        params.put("precio",precio);
+        params.put("stock",stock);
 
 
 
+        client.post(url,params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                if (statusCode == 200) {
+                    try {
+                        JSONObject o = new JSONObject(new String(responseBody));
+                        boolean ingreso = o.getBoolean("resultado");
+                        if (ingreso == true) {
+
+                        } else {
+
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }progressDialog.dismiss();
+
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
 
 
     }
