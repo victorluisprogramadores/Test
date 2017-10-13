@@ -1,29 +1,48 @@
 package com.example.victor.test;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import cz.msebera.android.httpclient.Header;
 
 public class Consulta extends AppCompatActivity {
     //Declarar variables
-    Button btLeer;
-    TextView resultado;
-
+    Button bt_leer;
+    TextView tv_codigo,tv_nombre,tv_descripcion,tv_modelo,tv_precio,tv_stock;
+    ProgressBar pb_carga;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consulta);
         //Inicializar variables
-        resultado = (TextView) findViewById(R.id.tv_codigo);
-        btLeer = (Button) findViewById(R.id.btLeer);
+        tv_codigo = (TextView) findViewById(R.id.tv_codigo);
+        tv_nombre = (TextView) findViewById(R.id.tv_nombre);
+        tv_descripcion = (TextView) findViewById(R.id.tv_descripcion);
+        tv_modelo = (TextView) findViewById(R.id.tv_modelo);
+        tv_precio = (TextView) findViewById(R.id.tv_precio);
+        tv_stock = (TextView) findViewById(R.id.tv_stock);
+        bt_leer = (Button) findViewById(R.id.bt_consultar);
+        pb_carga = (ProgressBar) findViewById(R.id.pb_carga);
         //Ejecutar lector
-        btLeer.setOnClickListener(new View.OnClickListener() {
+        bt_leer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 leerCodigo();
@@ -47,14 +66,88 @@ public class Consulta extends AppCompatActivity {
         IntentResult resultadoScan = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         String scanContent = resultadoScan.getContents();
         if(resultadoScan != null) {
-            resultado.setText(scanContent);
+            consultarProducto(scanContent);
+            pb_carga.setProgress(25);
+            Log.e("asd",scanContent);
 
         }else{
-            resultado.setText("No se encontro codigo");
+
 
         }
 
     }
 
+    private void consultarProducto(final String codigo){
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url ="https://victorluisprogramadores.000webhostapp.com/consultarProducto.php";
+        RequestParams params = new RequestParams();
+        params.put("codigo",codigo);
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if(statusCode==200){
+                    try {
+                        JSONArray producto = new JSONArray(new String(responseBody));
+                        String codi =producto.getJSONObject(0).getString("codigo");
+                        if(!TextUtils.isEmpty(codi)|| !codi.equals(null)){
+
+                            pb_carga.setProgress(50);
+                            cargarProducto(codigo);
+
+                        }else{
+
+
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
+    }
+        private void cargarProducto(final String codigo){
+            pb_carga.setProgress(75);
+            AsyncHttpClient client = new AsyncHttpClient();
+            String url="https://victorluisprogramadores.000webhostapp.com/consultarProducto.php";
+            RequestParams requestParams = new RequestParams();
+            requestParams.put("codigo",codigo);
+            client.post(url, requestParams, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    if(statusCode==200){
+                        try {
+                            JSONArray jsonArray = new JSONArray(new String (responseBody));
+                            for(int i =0; i<jsonArray.length();i++){
+                                tv_codigo.setText(jsonArray.getJSONObject(i).getString("codigo"));
+                                Log.e("asd",jsonArray.getJSONObject(i).getString("codigo"));
+                                tv_nombre.setText(jsonArray.getJSONObject(i).getString("nombre"));
+                                tv_descripcion.setText(jsonArray.getJSONObject(i).getString("descripcion"));
+                                tv_modelo.setText(jsonArray.getJSONObject(i).getString("modelo"));
+                                tv_precio.setText(jsonArray.getJSONObject(i).getString("precio"));
+                                tv_stock.setText(jsonArray.getJSONObject(i).getString("stock"));
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        pb_carga.setProgress(100);
+
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                }
+            });
+        }
 
 }

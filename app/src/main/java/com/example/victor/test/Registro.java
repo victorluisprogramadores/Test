@@ -2,6 +2,7 @@ package com.example.victor.test;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -76,61 +77,79 @@ public class Registro extends AppCompatActivity {
     }
 
     private void registrarProducto(EditText nombreL,EditText descripcionL,EditText modeloL,EditText stockL,EditText precioL,TextView codigoL){
-        final ProgressDialog progressDialog = new ProgressDialog(Registro.this);
-        progressDialog.setMessage("Registrando producto");
-        progressDialog.show();
-
         String nombre,descripcion,modelo,codigoR;
         int stock;
         Double precio;
 
-        nombre = nombreL.getText().toString();
-        descripcion = descripcionL.getText().toString();
-        modelo = modeloL.getText().toString();
-        stock = Integer.valueOf(stockL.getText().toString());
-        precio = Double.valueOf(precioL.getText().toString());
-        codigoR = codigoL.getText().toString();
-
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url ="https://victorluisprogramadores.000webhostapp.com/registroProductos.php";
-        RequestParams params = new RequestParams();
-        params.put("codigo",codigoR);
-        params.put("nombre",nombre);
-        params.put("descripcion",descripcion);
-        params.put("modelo",modelo);
-        params.put("precio",precio);
-        params.put("stock",stock);
-
-
-
-        client.post(url,params, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-                if (statusCode == 200) {
-                    try {
-                        JSONObject o = new JSONObject(new String(responseBody));
-                        boolean ingreso = o.getBoolean("resultado");
-                        if (ingreso == true) {
-
-                        } else {
+        try {
+            nombre = nombreL.getText().toString();
+            descripcion = descripcionL.getText().toString();
+            modelo = modeloL.getText().toString();
+            stock = Integer.valueOf(stockL.getText().toString());
+            precio = Double.valueOf(precioL.getText().toString());
+            codigoR = codigoL.getText().toString();
+            AsyncHttpClient client = new AsyncHttpClient();
+            String url ="https://victorluisprogramadores.000webhostapp.com/registroProductos.php";
+            RequestParams params = new RequestParams();
+            params.put("codigo",codigoR);
+            params.put("nombre",nombre);
+            params.put("descripcion",descripcion);
+            params.put("modelo",modelo);
+            params.put("precio",precio);
+            params.put("stock",stock);
 
 
+
+            client.post(url,params, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                    if (statusCode == 200) {
+                        try {
+                            JSONObject o = new JSONObject(new String(responseBody));
+                            boolean ingreso = o.getBoolean("resultado");
+                            if (ingreso == true) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
+                                builder.setTitle("Exito!: ");
+                                builder.setMessage("Se registro el producto correctamente");
+                                builder.setPositiveButton("Aceptar",null);
+                                builder.show();
+
+                            } else {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
+                                builder.setTitle("Error: ");
+                                builder.setMessage("No se pudo registrar el producto");
+                                builder.setPositiveButton("Aceptar",null);
+                                builder.show();
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+
                     }
+                }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
-                }progressDialog.dismiss();
+                }
+            });
+        }catch (Exception e){
+            AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
+            builder.setTitle("Error: ");
+            builder.setMessage("No se pudo registrar el producto");
+            builder.setPositiveButton("Aceptar",null);
+            builder.show();
 
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-            }
-        });
+        }
 
 
+
+    }
+
+    private void validarProducto(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
+        builder.setTitle("Error: ");
     }
 
 }
