@@ -80,76 +80,118 @@ public class Registro extends AppCompatActivity {
         String nombre,descripcion,modelo,codigoR;
         int stock;
         Double precio;
-
-        try {
-            nombre = nombreL.getText().toString();
-            descripcion = descripcionL.getText().toString();
-            modelo = modeloL.getText().toString();
-            stock = Integer.valueOf(stockL.getText().toString());
-            precio = Double.valueOf(precioL.getText().toString());
-            codigoR = codigoL.getText().toString();
-            AsyncHttpClient client = new AsyncHttpClient();
-            String url ="https://victorluisprogramadores.000webhostapp.com/registroProductos.php";
-            RequestParams params = new RequestParams();
-            params.put("codigo",codigoR);
-            params.put("nombre",nombre);
-            params.put("descripcion",descripcion);
-            params.put("modelo",modelo);
-            params.put("precio",precio);
-            params.put("stock",stock);
+        boolean ingresar =validarProducto();
+        if(ingresar==true) {
 
 
+            try {
+                nombre = nombreL.getText().toString();
+                descripcion = descripcionL.getText().toString();
+                modelo = modeloL.getText().toString();
+                stock = Integer.valueOf(stockL.getText().toString());
+                precio = Double.valueOf(precioL.getText().toString());
+                codigoR = codigoL.getText().toString();
+                AsyncHttpClient client = new AsyncHttpClient();
+                String url = "https://victorluisprogramadores.000webhostapp.com/registroProductos.php";
+                RequestParams params = new RequestParams();
+                params.put("codigo", codigoR);
+                params.put("nombre", nombre);
+                params.put("descripcion", descripcion);
+                params.put("modelo", modelo);
+                params.put("precio", precio);
+                params.put("stock", stock);
 
-            client.post(url,params, new AsyncHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
-                    if (statusCode == 200) {
-                        try {
-                            JSONObject o = new JSONObject(new String(responseBody));
-                            boolean ingreso = o.getBoolean("resultado");
-                            if (ingreso == true) {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
-                                builder.setTitle("Exito!: ");
-                                builder.setMessage("Se registro el producto correctamente");
-                                builder.setPositiveButton("Aceptar",null);
-                                builder.show();
+                client.post(url, params, new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
-                            } else {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
-                                builder.setTitle("Error: ");
-                                builder.setMessage("No se pudo registrar el producto");
-                                builder.setPositiveButton("Aceptar",null);
-                                builder.show();
+                        if (statusCode == 200) {
+                            try {
+                                JSONObject o = new JSONObject(new String(responseBody));
+                                boolean ingreso = o.getBoolean("resultado");
+                                if (ingreso == true) {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
+                                    builder.setTitle("Exito!: ");
+                                    builder.setMessage("Se registro el producto correctamente");
+                                    builder.setPositiveButton("Aceptar", null);
+                                    builder.show();
 
+                                } else {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
+                                    builder.setTitle("Error: ");
+                                    builder.setMessage("No se pudo registrar el producto");
+                                    builder.setPositiveButton("Aceptar", null);
+                                    builder.show();
+
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+
                         }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
                     }
-                }
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                });
+            } catch (Exception e) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
+                builder.setTitle("Error: ");
+                builder.setMessage("No se pudo registrar el producto");
+                builder.setPositiveButton("Aceptar", null);
+                builder.show();
 
-                }
-            });
-        }catch (Exception e){
-            AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
-            builder.setTitle("Error: ");
-            builder.setMessage("No se pudo registrar el producto");
-            builder.setPositiveButton("Aceptar",null);
-            builder.show();
-
+            }
         }
 
 
 
     }
 
-    private void validarProducto(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
-        builder.setTitle("Error: ");
+    private boolean validarProducto(){
+
+        boolean formCompleto=true;
+        String errorVacio="Por favor, complete los siguientes campos:\n ";
+        AlertDialog.Builder ventana = new AlertDialog.Builder(Registro.this);
+        ventana.setTitle("Datos requeridos!");
+        ventana.setPositiveButton("Aceptar",null);
+        if(codigo.getText().equals("")){
+            errorVacio=errorVacio+"\nCodigo del producto.";
+            formCompleto=false;
+        }
+        if(nombre.getText().toString().equals("")){
+            errorVacio=errorVacio+"\nNombre del producto.";
+            formCompleto=false;
+        }
+        if(descripcion.getText().toString().equals("")){
+            errorVacio=errorVacio+"\nDescripción del producto.";
+            formCompleto=false;
+        }
+        if(modelo.getText().toString().equals("")){
+            errorVacio=errorVacio+"\nModelo del producto.";
+            formCompleto=false;
+        }
+        if(precio.getText().toString().equals("")){
+            errorVacio=errorVacio+"\nPrecio del producto.";
+            formCompleto=false;
+        }
+        if(stock.getText().toString().equals("")){
+            errorVacio=errorVacio+"\nStock del producto.";
+            formCompleto=false;
+        }
+
+        if(formCompleto==false){
+
+            ventana.setMessage(errorVacio);
+            ventana.show();
+        }
+
+        return  formCompleto;
+
+
     }
 
 }

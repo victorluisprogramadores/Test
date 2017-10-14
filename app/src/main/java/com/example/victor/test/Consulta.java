@@ -2,6 +2,7 @@ package com.example.victor.test;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -68,11 +69,9 @@ public class Consulta extends AppCompatActivity {
         if(resultadoScan != null) {
             consultarProducto(scanContent);
             pb_carga.setProgress(25);
-            Log.e("asd",scanContent);
-
         }else{
 
-
+            pb_carga.setProgress(0);
         }
 
     }
@@ -90,14 +89,15 @@ public class Consulta extends AppCompatActivity {
                     try {
                         JSONArray producto = new JSONArray(new String(responseBody));
                         String codi =producto.getJSONObject(0).getString("codigo");
-                        if(!TextUtils.isEmpty(codi)|| !codi.equals(null)){
+                        if(!TextUtils.isEmpty(codi)|| !codi.equals(null) || codi.equals(codigo)){
 
                             pb_carga.setProgress(50);
                             cargarProducto(codigo);
+                            Log.e("Codigo enviado: ",codigo);
 
                         }else{
-
-
+                            pb_carga.setProgress(0);
+                            Log.e("Resultado: ",codi);
 
                         }
                     } catch (Exception e) {
@@ -109,7 +109,12 @@ public class Consulta extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                AlertDialog.Builder builder = new AlertDialog.Builder(Consulta.this);
+                builder.setTitle("Error!: ");
+                builder.setMessage("Error de conexión");
+                builder.setPositiveButton("Aceptar", null);
+                builder.show();
+                pb_carga.setProgress(0);
             }
         });
     }
@@ -145,6 +150,12 @@ public class Consulta extends AppCompatActivity {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Consulta.this);
+                    builder.setTitle("Error!: ");
+                    builder.setMessage("Error de conexión");
+                    builder.setPositiveButton("Aceptar", null);
+                    builder.show();
+                    pb_carga.setProgress(0);
 
                 }
             });
