@@ -1,6 +1,5 @@
 package com.example.victor.test;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -8,8 +7,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -27,8 +26,9 @@ import cz.msebera.android.httpclient.Header;
 public class Consulta extends AppCompatActivity {
     //Declarar variables
     Button bt_leer;
-    TextView tv_codigo,tv_nombre,tv_descripcion,tv_modelo,tv_precio,tv_stock;
+    TextView tv_codigo, tv_nombre, tv_descripcion, tv_modelo, tv_precio, tv_stock;
     ProgressBar pb_carga;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,8 +50,9 @@ public class Consulta extends AppCompatActivity {
             }
         });
     }
+
     //Metodo para inicializar escaner
-    private void leerCodigo(){
+    private void leerCodigo() {
         IntentIntegrator scanIntegrator = new IntentIntegrator(Consulta.this);
         scanIntegrator.setPrompt("Leer codigo de barras");
         scanIntegrator.setBeepEnabled(true);
@@ -66,38 +67,38 @@ public class Consulta extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, intent);
         IntentResult resultadoScan = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         String scanContent = resultadoScan.getContents();
-        if(resultadoScan != null) {
+        if (resultadoScan != null) {
             consultarProducto(scanContent);
             pb_carga.setProgress(25);
-        }else{
+        } else {
 
             pb_carga.setProgress(0);
         }
 
     }
 
-    private void consultarProducto(final String codigo){
+    private void consultarProducto(final String codigo) {
         AsyncHttpClient client = new AsyncHttpClient();
-        String url ="https://victorluisprogramadores.000webhostapp.com/consultarProducto.php";
+        String url = "https://victorluisprogramadores.000webhostapp.com/consultarProducto.php";
         RequestParams params = new RequestParams();
-        params.put("codigo",codigo);
+        params.put("codigo", codigo);
 
         client.post(url, params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(statusCode==200){
+                if (statusCode == 200) {
                     try {
                         JSONArray producto = new JSONArray(new String(responseBody));
-                        String codi =producto.getJSONObject(0).getString("codigo");
-                        if(!TextUtils.isEmpty(codi)|| !codi.equals(null) || codi.equals(codigo)){
+                        String codi = producto.getJSONObject(0).getString("codigo");
+                        if (!TextUtils.isEmpty(codi) || !codi.equals(null) || codi.equals(codigo)) {
 
                             pb_carga.setProgress(50);
                             cargarProducto(codigo);
-                            Log.e("Codigo enviado: ",codigo);
+                            Log.e("Codigo enviado: ", codigo);
 
-                        }else{
+                        } else {
                             pb_carga.setProgress(0);
-                            Log.e("Resultado: ",codi);
+                            Log.e("Resultado: ", codi);
 
                         }
                     } catch (Exception e) {
@@ -118,47 +119,48 @@ public class Consulta extends AppCompatActivity {
             }
         });
     }
-        private void cargarProducto(final String codigo){
-            pb_carga.setProgress(75);
-            AsyncHttpClient client = new AsyncHttpClient();
-            String url="https://victorluisprogramadores.000webhostapp.com/consultarProducto.php";
-            RequestParams requestParams = new RequestParams();
-            requestParams.put("codigo",codigo);
-            client.post(url, requestParams, new AsyncHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    if(statusCode==200){
-                        try {
-                            JSONArray jsonArray = new JSONArray(new String (responseBody));
-                            for(int i =0; i<jsonArray.length();i++){
-                                tv_codigo.setText(jsonArray.getJSONObject(i).getString("codigo"));
-                                Log.e("asd",jsonArray.getJSONObject(i).getString("codigo"));
-                                tv_nombre.setText(jsonArray.getJSONObject(i).getString("nombre"));
-                                tv_descripcion.setText(jsonArray.getJSONObject(i).getString("descripcion"));
-                                tv_modelo.setText(jsonArray.getJSONObject(i).getString("modelo"));
-                                tv_precio.setText(jsonArray.getJSONObject(i).getString("precio"));
-                                tv_stock.setText(jsonArray.getJSONObject(i).getString("stock"));
-                            }
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+    private void cargarProducto(final String codigo) {
+        pb_carga.setProgress(75);
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "https://victorluisprogramadores.000webhostapp.com/consultarProducto.php";
+        RequestParams requestParams = new RequestParams();
+        requestParams.put("codigo", codigo);
+        client.post(url, requestParams, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+                    try {
+                        JSONArray jsonArray = new JSONArray(new String(responseBody));
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            tv_codigo.setText(jsonArray.getJSONObject(i).getString("codigo"));
+                            Log.e("asd", jsonArray.getJSONObject(i).getString("codigo"));
+                            tv_nombre.setText(jsonArray.getJSONObject(i).getString("nombre"));
+                            tv_descripcion.setText(jsonArray.getJSONObject(i).getString("descripcion"));
+                            tv_modelo.setText(jsonArray.getJSONObject(i).getString("modelo"));
+                            tv_precio.setText(jsonArray.getJSONObject(i).getString("precio"));
+                            tv_stock.setText(jsonArray.getJSONObject(i).getString("stock"));
                         }
-                        pb_carga.setProgress(100);
 
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Consulta.this);
-                    builder.setTitle("Error!: ");
-                    builder.setMessage("Error de conexión");
-                    builder.setPositiveButton("Aceptar", null);
-                    builder.show();
-                    pb_carga.setProgress(0);
+                    pb_carga.setProgress(100);
 
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Consulta.this);
+                builder.setTitle("Error!: ");
+                builder.setMessage("Error de conexión");
+                builder.setPositiveButton("Aceptar", null);
+                builder.show();
+                pb_carga.setProgress(0);
+
+            }
+        });
+    }
 
 }
