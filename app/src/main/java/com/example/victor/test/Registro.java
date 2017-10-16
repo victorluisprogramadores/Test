@@ -90,7 +90,7 @@ public class Registro extends AppCompatActivity {
                     Log.e("Modificar", "Debe seleccionar modificar");
                     AlertDialog.Builder builder = new AlertDialog.Builder(Registro.this);
                     builder.setTitle("Aviso: ");
-                    builder.setMessage("Para actualizar un producto anteriormente ingresado, por favor, marque la opcion actualizar");
+                    builder.setMessage("Para actualizar un producto anteriormente ingresado, por favor, marque la opcion modificar");
                     builder.setPositiveButton("Aceptar", null);
                     builder.show();
                 }
